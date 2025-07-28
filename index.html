@@ -2,124 +2,151 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <title>Programación de Ciclos Mineros - Mejorado</title>
-    <style>
-        body { font-family: Arial, sans-serif; background-color: #f4f6f8; color: #333; margin: 0; padding: 20px; }
-        h1, h2 { color: #004080; }
-        form { background: #ffffff; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        label { display: block; margin: 10px 0 5px; }
-        input { padding: 5px; width: 200px; }
-        button { margin-top: 10px; padding: 8px 16px; background-color: #004080; color: white; border: none; border-radius: 5px; cursor: pointer; }
-        table { width: 100%; margin-top: 20px; border-collapse: collapse; background: #fff; }
-        th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
-        th { background-color: #e6f0ff; }
-        .barra { height: 20px; margin-right: 2px; display: inline-block; vertical-align: middle; position: relative; }
-        .barra span { position: absolute; left: 5px; top: 2px; font-size: 10px; color: white; }
-        .perforacion { background: #0074D9; }
-        .disparo { background: #FF4136; }
-        .ventilacion { background: #AAAAAA; }
-        .extraccion { background: #2ECC40; }
-        .proyeccion { background: #FF851B; }
-        .acunadura { background: #B10DC9; }
-        .leyenda { margin-top: 15px; }
-        .leyenda span { margin-right: 15px; display: inline-block; }
-        .leyenda .cuadro { width: 12px; height: 12px; display: inline-block; margin-right: 5px; vertical-align: middle; }
-        .filaGantt { margin-top: 10px; }
-        .contenedorGantt { background: #fff; padding: 20px; border-radius: 10px; margin-top: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-    </style>
+  <meta charset="UTF-8" />
+  <title>Programación Minera con Volumen</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; background-color: #f4f6f8; color: #333; padding: 20px; }
+    h1, h2 { color: #004080; }
+    form, .contenedorGantt { background: #ffffff; padding: 20px; border-radius: 10px; margin-top: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    label { display: block; margin: 10px 0 5px; }
+    input, select { padding: 5px; width: 220px; }
+    button { margin-top: 10px; padding: 8px 16px; background-color: #004080; color: white; border: none; border-radius: 5px; cursor: pointer; }
+    table { width: 100%; margin-top: 20px; border-collapse: collapse; background: #fff; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+    th { background-color: #e6f0ff; }
+    .barra { height: 20px; margin-right: 2px; display: inline-block; vertical-align: middle; position: relative; }
+    .barra span { position: absolute; left: 5px; top: 2px; font-size: 10px; color: white; }
+    .perforacion { background: #0074D9; }
+    .disparo { background: #FF4136; }
+    .ventilacion { background: #AAAAAA; }
+    .extraccion { background: #2ECC40; }
+    .proyeccion { background: #FF851B; }
+    .acunadura { background: #B10DC9; }
+    .leyenda { margin-top: 15px; }
+    .leyenda span { margin-right: 15px; display: inline-block; }
+    .leyenda .cuadro { width: 12px; height: 12px; display: inline-block; margin-right: 5px; vertical-align: middle; }
+    .filaGantt { margin-top: 10px; }
+  </style>
 </head>
 <body>
-    <h1>Programación de Ciclos Mineros</h1>
+  <h1>Programación de Ciclos Mineros con Volumen</h1>
 
-    <form id="formFrente">
-        <label>Nombre del Frente: <input type="text" id="frente" required></label>
-        <label>Largo a Perforar (m): <input type="number" id="largo" required></label>
-        <label>Duración Perforación (min/m): <input type="number" id="perforacion" required></label>
-        <label>Duración Disparo (min): <input type="number" id="disparo" required></label>
-        <label>Ventilación (min): <input type="number" id="ventilacion" required></label>
-        <label>Extracción (min/m): <input type="number" id="extraccion" required></label>
-        <label>Proyección (min): <input type="number" id="proyeccion" required></label>
-        <label>Acuñadura (min): <input type="number" id="acunadura" required></label>
-        <button type="submit">Agregar Frente</button>
-    </form>
+  <form id="formFrente">
+    <label>Nombre del Frente: <input type="text" id="frente" required></label>
+    <label>Largo a Perforar (m): <input type="number" id="largo" required></label>
 
-    <h2>Programación por Frente</h2>
-    <table id="tablaResultados">
-        <tr>
-            <th>Frente</th>
-            <th>Largo (m)</th>
-            <th>Perforación Total</th>
-            <th>Extracción Total</th>
-            <th>Duración Total (min)</th>
-            <th>Duración Total (hr)</th>
-        </tr>
-    </table>
+    <label>Sección del Frente (m): 
+      <select id="seccion">
+        <option value="5.5x5.2">5.5 x 5.2</option>
+        <option value="4.5x4.5">4.5 x 4.5</option>
+        <option value="6.0x6.0">6.0 x 6.0</option>
+        <option value="7.0x7.0">7.0 x 7.0</option>
+      </select>
+    </label>
 
-    <button onclick="mostrarGantt()">Ver gráfico Gantt</button>
-    <div class="contenedorGantt" id="contenedorGantt" style="display:none;"></div>
+    <label>Densidad del Material (ton/m³):
+      <select id="densidad">
+        <option value="1.6">1.6</option>
+        <option value="1.8">1.8</option>
+        <option value="2.0">2.0</option>
+        <option value="2.2">2.2</option>
+      </select>
+    </label>
 
-    <div class="leyenda">
-        <strong>Leyenda:</strong>
-        <span><span class="cuadro" style="background:#0074D9;"></span> Perforación</span>
-        <span><span class="cuadro" style="background:#FF4136;"></span> Disparo</span>
-        <span><span class="cuadro" style="background:#AAAAAA;"></span> Ventilación</span>
-        <span><span class="cuadro" style="background:#2ECC40;"></span> Extracción</span>
-        <span><span class="cuadro" style="background:#FF851B;"></span> Proyección</span>
-        <span><span class="cuadro" style="background:#B10DC9;"></span> Acuñadura</span>
-    </div>
+    <label>Duración Perforación (min/m): <input type="number" id="perforacion" required></label>
+    <label>Duración Disparo (min): <input type="number" id="disparo" required></label>
+    <label>Ventilación (min): <input type="number" id="ventilacion" required></label>
+    <label>Extracción (min/m): <input type="number" id="extraccion" required></label>
+    <label>Proyección (min): <input type="number" id="proyeccion" required></label>
+    <label>Acuñadura (min): <input type="number" id="acunadura" required></label>
 
-    <script>
-        const frentes = [];
+    <button type="submit">Agregar Frente</button>
+  </form>
 
-        document.getElementById('formFrente').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const frente = document.getElementById('frente').value;
-            const largo = parseFloat(document.getElementById('largo').value);
-            const perfMin = parseFloat(document.getElementById('perforacion').value);
-            const disparo = parseFloat(document.getElementById('disparo').value);
-            const vent = parseFloat(document.getElementById('ventilacion').value);
-            const extMin = parseFloat(document.getElementById('extraccion').value);
-            const proy = parseFloat(document.getElementById('proyeccion').value);
-            const acun = parseFloat(document.getElementById('acunadura').value);
+  <h2>Resultados</h2>
+  <table id="tablaResultados">
+    <tr>
+      <th>Frente</th><th>Largo (m)</th><th>Sección</th><th>Densidad</th>
+      <th>Volumen (m³)</th><th>Toneladas</th>
+      <th>Total (min)</th><th>Total (hr)</th>
+    </tr>
+  </table>
 
-            const perfTotal = perfMin * largo;
-            const extTotal = extMin * largo;
-            const totalMin = perfTotal + disparo + vent + extTotal + proy + acun;
-            const totalHr = (totalMin / 60).toFixed(2);
+  <button onclick="mostrarGantt()">Ver gráfico Gantt</button>
+  <button onclick="exportarGantt()">Descargar Gantt como Imagen</button>
+  <div class="contenedorGantt" id="contenedorGantt" style="display:none;"></div>
 
-            frentes.push({ frente, largo, perfTotal, disparo, vent, extTotal, proy, acun, totalMin, totalHr });
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script>
+    const frentes = [];
 
-            const tabla = document.getElementById('tablaResultados');
-            const fila = tabla.insertRow(-1);
-            fila.innerHTML = `<td>${frente}</td><td>${largo}</td><td>${perfTotal}</td><td>${extTotal}</td><td>${totalMin}</td><td>${totalHr}</td>`;
+    document.getElementById('formFrente').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const frente = document.getElementById('frente').value;
+      const largo = parseFloat(document.getElementById('largo').value);
+      const seccion = document.getElementById('seccion').value;
+      const densidad = parseFloat(document.getElementById('densidad').value);
+      const [ancho, alto] = seccion.split("x").map(Number);
+      const volumen = largo * ancho * alto;
+      const toneladas = volumen * densidad;
 
-            document.getElementById('formFrente').reset();
-        });
+      const perfMin = parseFloat(document.getElementById('perforacion').value);
+      const disparo = parseFloat(document.getElementById('disparo').value);
+      const vent = parseFloat(document.getElementById('ventilacion').value);
+      const extMin = parseFloat(document.getElementById('extraccion').value);
+      const proy = parseFloat(document.getElementById('proyeccion').value);
+      const acun = parseFloat(document.getElementById('acunadura').value);
 
-        function mostrarGantt() {
-            const contenedor = document.getElementById('contenedorGantt');
-            contenedor.innerHTML = "";
-            contenedor.style.display = 'block';
+      const perfTotal = perfMin * largo;
+      const extTotal = extMin * largo;
+      const totalMin = perfTotal + disparo + vent + extTotal + proy + acun;
+      const totalHr = (totalMin / 60).toFixed(2);
 
-            frentes.forEach(f => {
-                const fila = document.createElement('div');
-                fila.className = 'filaGantt';
-                fila.innerHTML = `<strong>${f.frente}</strong><br>` +
-                    crearBarra("perforacion", f.perfTotal) +
-                    crearBarra("disparo", f.disparo) +
-                    crearBarra("ventilacion", f.vent) +
-                    crearBarra("extraccion", f.extTotal) +
-                    crearBarra("proyeccion", f.proy) +
-                    crearBarra("acunadura", f.acun);
-                contenedor.appendChild(fila);
-            });
-        }
+      frentes.push({ frente, largo, seccion, densidad, volumen, toneladas, perfTotal, disparo, vent, extTotal, proy, acun, totalMin, totalHr });
 
-        function crearBarra(tipo, valor) {
-            const horas = (valor / 60).toFixed(1);
-            return `<span class='barra ${tipo}' style='width:${valor}px'><span>${horas}h</span></span>`;
-        }
-    </script>
+      const tabla = document.getElementById('tablaResultados');
+      const fila = tabla.insertRow(-1);
+      fila.innerHTML = `<td>${frente}</td><td>${largo}</td><td>${seccion}</td><td>${densidad}</td>
+                        <td>${volumen.toFixed(1)}</td><td>${toneladas.toFixed(1)}</td>
+                        <td>${totalMin}</td><td>${totalHr}</td>`;
+
+      document.getElementById('formFrente').reset();
+    });
+
+    function mostrarGantt() {
+      const contenedor = document.getElementById('contenedorGantt');
+      contenedor.innerHTML = "";
+      contenedor.style.display = 'block';
+
+      frentes.forEach(f => {
+        const fila = document.createElement('div');
+        fila.className = 'filaGantt';
+        fila.innerHTML = `<strong>${f.frente}</strong><br>` +
+          crearBarra("perforacion", f.perfTotal) +
+          crearBarra("disparo", f.disparo) +
+          crearBarra("ventilacion", f.vent) +
+          crearBarra("extraccion", f.extTotal) +
+          crearBarra("proyeccion", f.proy) +
+          crearBarra("acunadura", f.acun);
+        contenedor.appendChild(fila);
+      });
+    }
+
+    function crearBarra(tipo, valor) {
+      const horas = (valor / 60).toFixed(1);
+      return `<span class='barra ${tipo}' style='width:${valor}px'><span>${horas}h</span></span>`;
+    }
+
+    function exportarGantt() {
+      const contenedor = document.getElementById("contenedorGantt");
+      html2canvas(contenedor).then(canvas => {
+        const link = document.createElement("a");
+        link.download = "gantt_" + new Date().toISOString().slice(0,10) + ".png";
+        link.href = canvas.toDataURL();
+        link.click();
+      });
+    }
+  </script>
 </body>
 </html>
