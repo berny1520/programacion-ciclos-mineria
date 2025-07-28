@@ -3,11 +3,24 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Programación de Ciclos - Minería Subterránea</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Programación de Ciclos - Gantt Dinámico</title>
+    <style>
+        body { font-family: Arial; padding: 20px; }
+        .barra { height: 20px; margin: 2px 0; display: inline-block; }
+        .perforacion { background: #0074D9; }
+        .disparo { background: #FF4136; }
+        .ventilacion { background: #AAAAAA; }
+        .extraccion { background: #2ECC40; }
+        .proyeccion { background: #FF851B; }
+        .acunadura { background: #B10DC9; }
+        .leyenda span { display: inline-block; margin-right: 15px; }
+        .leyenda .cuadro { width: 12px; height: 12px; display: inline-block; margin-right: 5px; vertical-align: middle; }
+        .filaGantt { margin: 5px 0; }
+    </style>
 </head>
 <body>
-    <h1>Software de Programación de Ciclos</h1>
+    <h1>Programación de Ciclos Mineros</h1>
+
     <form id="formFrente">
         <label>Nombre del Frente: <input type="text" id="frente" required></label><br><br>
         <label>Largo a Perforar (m): <input type="number" id="largo" required></label><br><br>
@@ -30,14 +43,24 @@
             <th>Duración Total (min)</th>
             <th>Duración Total (hr)</th>
         </tr>
-    
     </table>
-    <br>
-    <button onclick="exportarTabla()">Exportar a Excel</button>
-    <button onclick="limpiarTabla()">Limpiar Tabla</button>
-    
+
+    <br><button onclick="mostrarGantt()">Ver gráfico Gantt</button>
+    <div id="contenedorGantt" style="display:none; margin-top:20px;"></div>
+
+    <div class="leyenda" style="margin-top:20px;">
+        <strong>Leyenda:</strong>
+        <span><span class="cuadro" style="background:#0074D9;"></span> Perforación</span>
+        <span><span class="cuadro" style="background:#FF4136;"></span> Disparo</span>
+        <span><span class="cuadro" style="background:#AAAAAA;"></span> Ventilación</span>
+        <span><span class="cuadro" style="background:#2ECC40;"></span> Extracción</span>
+        <span><span class="cuadro" style="background:#FF851B;"></span> Proyección</span>
+        <span><span class="cuadro" style="background:#B10DC9;"></span> Acuñadura</span>
+    </div>
 
     <script>
+        const frentes = [];
+
         document.getElementById('formFrente').addEventListener('submit', function(e) {
             e.preventDefault();
             const frente = document.getElementById('frente').value;
@@ -54,34 +77,33 @@
             const totalMin = perfTotal + disparo + vent + extTotal + proy + acun;
             const totalHr = (totalMin / 60).toFixed(2);
 
+            frentes.push({ frente, perfTotal, disparo, vent, extTotal, proy, acun });
+
             const tabla = document.getElementById('tablaResultados');
             const fila = tabla.insertRow(-1);
             fila.innerHTML = `<td>${frente}</td><td>${largo}</td><td>${perfTotal}</td><td>${extTotal}</td><td>${totalMin}</td><td>${totalHr}</td>`;
 
             document.getElementById('formFrente').reset();
         });
-    
-    function exportarTabla() {
-        let table = document.getElementById("tablaResultados");
-        let rows = [...table.rows];
-        let csv = rows.map(r => [...r.cells].map(c => c.innerText).join(",")).join("\n");
-        let blob = new Blob([csv], { type: 'text/csv' });
-        let url = window.URL.createObjectURL(blob);
-        let a = document.createElement("a");
-        a.href = url;
-        a.download = "programacion_ciclos.csv";
-        a.click();
-        window.URL.revokeObjectURL(url);
-    }
 
-    function limpiarTabla() {
-        let table = document.getElementById("tablaResultados");
-        while (table.rows.length > 1) {
-            table.deleteRow(1);
+        function mostrarGantt() {
+            const contenedor = document.getElementById('contenedorGantt');
+            contenedor.innerHTML = "";
+            contenedor.style.display = 'block';
+
+            frentes.forEach(f => {
+                const fila = document.createElement('div');
+                fila.className = 'filaGantt';
+                fila.innerHTML = `<strong>${f.frente}</strong><br>` +
+                    `<span class='barra perforacion' style='width:${f.perfTotal}px' title='Perforación'></span>` +
+                    `<span class='barra disparo' style='width:${f.disparo}px' title='Disparo'></span>` +
+                    `<span class='barra ventilacion' style='width:${f.vent}px' title='Ventilación'></span>` +
+                    `<span class='barra extraccion' style='width:${f.extTotal}px' title='Extracción'></span>` +
+                    `<span class='barra proyeccion' style='width:${f.proy}px' title='Proyección'></span>` +
+                    `<span class='barra acunadura' style='width:${f.acun}px' title='Acuñadura'></span>`;
+                contenedor.appendChild(fila);
+            });
         }
-    }
-</script>
-
+    </script>
 </body>
 </html>
-</Commit changes>
