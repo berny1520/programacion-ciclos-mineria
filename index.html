@@ -3,38 +3,49 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Programación de Ciclos - Gantt Dinámico</title>
+    <title>Programación de Ciclos Mineros - Mejorado</title>
     <style>
-        body { font-family: Arial; padding: 20px; }
-        .barra { height: 20px; margin: 2px 0; display: inline-block; }
+        body { font-family: Arial, sans-serif; background-color: #f4f6f8; color: #333; margin: 0; padding: 20px; }
+        h1, h2 { color: #004080; }
+        form { background: #ffffff; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        label { display: block; margin: 10px 0 5px; }
+        input { padding: 5px; width: 200px; }
+        button { margin-top: 10px; padding: 8px 16px; background-color: #004080; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        table { width: 100%; margin-top: 20px; border-collapse: collapse; background: #fff; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+        th { background-color: #e6f0ff; }
+        .barra { height: 20px; margin-right: 2px; display: inline-block; vertical-align: middle; position: relative; }
+        .barra span { position: absolute; left: 5px; top: 2px; font-size: 10px; color: white; }
         .perforacion { background: #0074D9; }
         .disparo { background: #FF4136; }
         .ventilacion { background: #AAAAAA; }
         .extraccion { background: #2ECC40; }
         .proyeccion { background: #FF851B; }
         .acunadura { background: #B10DC9; }
-        .leyenda span { display: inline-block; margin-right: 15px; }
+        .leyenda { margin-top: 15px; }
+        .leyenda span { margin-right: 15px; display: inline-block; }
         .leyenda .cuadro { width: 12px; height: 12px; display: inline-block; margin-right: 5px; vertical-align: middle; }
-        .filaGantt { margin: 5px 0; }
+        .filaGantt { margin-top: 10px; }
+        .contenedorGantt { background: #fff; padding: 20px; border-radius: 10px; margin-top: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
     </style>
 </head>
 <body>
     <h1>Programación de Ciclos Mineros</h1>
 
     <form id="formFrente">
-        <label>Nombre del Frente: <input type="text" id="frente" required></label><br><br>
-        <label>Largo a Perforar (m): <input type="number" id="largo" required></label><br><br>
-        <label>Duración Perforación (min/m): <input type="number" id="perforacion" required></label><br><br>
-        <label>Duración Disparo (min): <input type="number" id="disparo" required></label><br><br>
-        <label>Ventilación (min): <input type="number" id="ventilacion" required></label><br><br>
-        <label>Extracción (min/m): <input type="number" id="extraccion" required></label><br><br>
-        <label>Proyección (min): <input type="number" id="proyeccion" required></label><br><br>
-        <label>Acuñadura (min): <input type="number" id="acunadura" required></label><br><br>
+        <label>Nombre del Frente: <input type="text" id="frente" required></label>
+        <label>Largo a Perforar (m): <input type="number" id="largo" required></label>
+        <label>Duración Perforación (min/m): <input type="number" id="perforacion" required></label>
+        <label>Duración Disparo (min): <input type="number" id="disparo" required></label>
+        <label>Ventilación (min): <input type="number" id="ventilacion" required></label>
+        <label>Extracción (min/m): <input type="number" id="extraccion" required></label>
+        <label>Proyección (min): <input type="number" id="proyeccion" required></label>
+        <label>Acuñadura (min): <input type="number" id="acunadura" required></label>
         <button type="submit">Agregar Frente</button>
     </form>
 
     <h2>Programación por Frente</h2>
-    <table border="1" id="tablaResultados">
+    <table id="tablaResultados">
         <tr>
             <th>Frente</th>
             <th>Largo (m)</th>
@@ -45,10 +56,10 @@
         </tr>
     </table>
 
-    <br><button onclick="mostrarGantt()">Ver gráfico Gantt</button>
-    <div id="contenedorGantt" style="display:none; margin-top:20px;"></div>
+    <button onclick="mostrarGantt()">Ver gráfico Gantt</button>
+    <div class="contenedorGantt" id="contenedorGantt" style="display:none;"></div>
 
-    <div class="leyenda" style="margin-top:20px;">
+    <div class="leyenda">
         <strong>Leyenda:</strong>
         <span><span class="cuadro" style="background:#0074D9;"></span> Perforación</span>
         <span><span class="cuadro" style="background:#FF4136;"></span> Disparo</span>
@@ -77,7 +88,7 @@
             const totalMin = perfTotal + disparo + vent + extTotal + proy + acun;
             const totalHr = (totalMin / 60).toFixed(2);
 
-            frentes.push({ frente, perfTotal, disparo, vent, extTotal, proy, acun });
+            frentes.push({ frente, largo, perfTotal, disparo, vent, extTotal, proy, acun, totalMin, totalHr });
 
             const tabla = document.getElementById('tablaResultados');
             const fila = tabla.insertRow(-1);
@@ -95,14 +106,19 @@
                 const fila = document.createElement('div');
                 fila.className = 'filaGantt';
                 fila.innerHTML = `<strong>${f.frente}</strong><br>` +
-                    `<span class='barra perforacion' style='width:${f.perfTotal}px' title='Perforación'></span>` +
-                    `<span class='barra disparo' style='width:${f.disparo}px' title='Disparo'></span>` +
-                    `<span class='barra ventilacion' style='width:${f.vent}px' title='Ventilación'></span>` +
-                    `<span class='barra extraccion' style='width:${f.extTotal}px' title='Extracción'></span>` +
-                    `<span class='barra proyeccion' style='width:${f.proy}px' title='Proyección'></span>` +
-                    `<span class='barra acunadura' style='width:${f.acun}px' title='Acuñadura'></span>`;
+                    crearBarra("perforacion", f.perfTotal) +
+                    crearBarra("disparo", f.disparo) +
+                    crearBarra("ventilacion", f.vent) +
+                    crearBarra("extraccion", f.extTotal) +
+                    crearBarra("proyeccion", f.proy) +
+                    crearBarra("acunadura", f.acun);
                 contenedor.appendChild(fila);
             });
+        }
+
+        function crearBarra(tipo, valor) {
+            const horas = (valor / 60).toFixed(1);
+            return `<span class='barra ${tipo}' style='width:${valor}px'><span>${horas}h</span></span>`;
         }
     </script>
 </body>
