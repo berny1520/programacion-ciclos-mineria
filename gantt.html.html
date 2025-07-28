@@ -1,0 +1,49 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Programación de Ciclos - Gantt</title>
+    <style>
+        body { font-family: Arial; padding: 20px; }
+        .barra { height: 20px; margin: 2px 0; display: inline-block; }
+        .perforacion { background: #0074D9; width: 100px; }
+        .disparo { background: #FF4136; width: 40px; }
+        .ventilacion { background: #AAAAAA; width: 30px; }
+        .extraccion { background: #2ECC40; width: 70px; }
+        .proyeccion { background: #FF851B; width: 50px; }
+        .acunadura { background: #B10DC9; width: 40px; }
+        .leyenda span { display: inline-block; margin-right: 15px; }
+        .leyenda .cuadro { width: 12px; height: 12px; display: inline-block; margin-right: 5px; vertical-align: middle; }
+    </style>
+</head>
+<body>
+    <h1>Gráfico Gantt - Ciclos por Frente (Turnos A y B)</h1>
+
+    <button onclick="document.getElementById('gantt').style.display='block'">Ver gráfico Gantt</button>
+
+    <div id="gantt" style="display:none; margin-top: 20px;">
+        <h2>Frente ZANJA1</h2>
+        <div>
+            <span class="barra perforacion" title="Perforación (8x4)"></span>
+            <span class="barra disparo" title="Disparo (30 min)"></span>
+            <span class="barra ventilacion" title="Ventilación (20 min)"></span>
+            <span class="barra extraccion" title="Extracción (6x4)"></span>
+            <span class="barra proyeccion" title="Proyección (40 min)"></span>
+            <span class="barra acunadura" title="Acuñadura (25 min)"></span>
+        </div>
+        <br><br>
+        <div class="leyenda">
+            <strong>Leyenda:</strong>
+            <span><span class="cuadro" style="background:#0074D9;"></span> Perforación</span>
+            <span><span class="cuadro" style="background:#FF4136;"></span> Disparo</span>
+            <span><span class="cuadro" style="background:#AAAAAA;"></span> Ventilación</span>
+            <span><span class="cuadro" style="background:#2ECC40;"></span> Extracción</span>
+            <span><span class="cuadro" style="background:#FF851B;"></span> Proyección</span>
+            <span><span class="cuadro" style="background:#B10DC9;"></span> Acuñadura</span>
+        </div>
+        <br>
+        <p><strong>Nota:</strong> Cada bloque representa una parte del turno A o B (escala base visual).</p>
+    </div>
+</body>
+</html>
