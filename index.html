@@ -3,7 +3,7 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <title>Programación Minera con Volumen</title>
+  <title>Software Minero - Perforación Real por Equipo</title>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <style>
     body { font-family: Arial, sans-serif; background-color: #f4f6f8; color: #333; padding: 20px; }
@@ -23,20 +23,15 @@
     .extraccion { background: #2ECC40; }
     .proyeccion { background: #FF851B; }
     .acunadura { background: #B10DC9; }
-    .leyenda { margin-top: 15px; }
-    .leyenda span { margin-right: 15px; display: inline-block; }
-    .leyenda .cuadro { width: 12px; height: 12px; display: inline-block; margin-right: 5px; vertical-align: middle; }
-    .filaGantt { margin-top: 10px; }
   </style>
 </head>
 <body>
-  <h1>Programación de Ciclos Mineros con Volumen</h1>
+  <h1>Programación de Perforación con Equipos</h1>
 
   <form id="formFrente">
     <label>Nombre del Frente: <input type="text" id="frente" required></label>
-    <label>Largo a Perforar (m): <input type="number" id="largo" required></label>
-
-    <label>Sección del Frente (m): 
+    <label>Largo del frente (m): <input type="number" step="0.1" id="largo" required></label>
+    <label>Sección del Frente:
       <select id="seccion">
         <option value="5.5x5.2">5.5 x 5.2</option>
         <option value="4.5x4.5">4.5 x 4.5</option>
@@ -44,8 +39,7 @@
         <option value="7.0x7.0">7.0 x 7.0</option>
       </select>
     </label>
-
-    <label>Densidad del Material (ton/m³):
+    <label>Densidad del material (ton/m³):
       <select id="densidad">
         <option value="1.6">1.6</option>
         <option value="1.8">1.8</option>
@@ -54,22 +48,33 @@
       </select>
     </label>
 
-    <label>Duración Perforación (min/m): <input type="number" id="perforacion" required></label>
-    <label>Duración Disparo (min): <input type="number" id="disparo" required></label>
+    <label>Equipo:
+      <select id="equipo">
+        <option value="S1D">S1D</option>
+        <option value="282">282</option>
+        <option value="M2C">M2C</option>
+        <option value="E2C">E2C</option>
+        <option value="XE3C">XE3C</option>
+        <option value="S2">S2</option>
+      </select>
+    </label>
+
+    <label>Cantidad de perforaciones: <input type="number" id="perforaciones" required></label>
+    <label>Tiempo por perforación (minutos, puede ser decimal): <input type="number" step="0.1" id="tiempoPorPerforacion" required></label>
+
+    <label>Disparo (min): <input type="number" id="disparo" required></label>
     <label>Ventilación (min): <input type="number" id="ventilacion" required></label>
-    <label>Extracción (min/m): <input type="number" id="extraccion" required></label>
+    <label>Extracción (min/m): <input type="number" step="0.1" id="extraccion" required></label>
     <label>Proyección (min): <input type="number" id="proyeccion" required></label>
     <label>Acuñadura (min): <input type="number" id="acunadura" required></label>
-
     <button type="submit">Agregar Frente</button>
   </form>
 
-  <h2>Resultados</h2>
+  <h2>Resumen de Frentes</h2>
   <table id="tablaResultados">
     <tr>
-      <th>Frente</th><th>Largo (m)</th><th>Sección</th><th>Densidad</th>
-      <th>Volumen (m³)</th><th>Toneladas</th>
-      <th>Total (min)</th><th>Total (hr)</th>
+      <th>Frente</th><th>Equipo</th><th>Brazos</th><th>Perfs</th><th>Tiempo Real Perforación (min)</th>
+      <th>Volumen (m³)</th><th>Toneladas</th><th>Total (min)</th><th>Total (hr)</th>
     </tr>
   </table>
 
@@ -77,8 +82,8 @@
   <button onclick="exportarGantt()">Descargar Gantt como Imagen</button>
   <div class="contenedorGantt" id="contenedorGantt" style="display:none;"></div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script>
+    const equipos = { "S1D": 1, "282": 1, "M2C": 2, "E2C": 2, "XE3C": 3, "S2": 2 };
     const frentes = [];
 
     document.getElementById('formFrente').addEventListener('submit', function(e) {
@@ -87,48 +92,46 @@
       const largo = parseFloat(document.getElementById('largo').value);
       const seccion = document.getElementById('seccion').value;
       const densidad = parseFloat(document.getElementById('densidad').value);
+      const equipo = document.getElementById('equipo').value;
+      const brazos = equipos[equipo];
+      const perforaciones = parseInt(document.getElementById('perforaciones').value);
+      const tiempoPorPerf = parseFloat(document.getElementById('tiempoPorPerforacion').value);
+      const disparo = parseFloat(document.getElementById('disparo').value);
+      const ventilacion = parseFloat(document.getElementById('ventilacion').value);
+      const extraccion = parseFloat(document.getElementById('extraccion').value);
+      const proyeccion = parseFloat(document.getElementById('proyeccion').value);
+      const acunadura = parseFloat(document.getElementById('acunadura').value);
+
+      const tiempoRealPerforacion = (perforaciones * tiempoPorPerf) / brazos;
+      const extTotal = extraccion * largo;
+      const totalMin = tiempoRealPerforacion + disparo + ventilacion + extTotal + proyeccion + acunadura;
+      const totalHr = (totalMin / 60).toFixed(2);
+
       const [ancho, alto] = seccion.split("x").map(Number);
       const volumen = largo * ancho * alto;
       const toneladas = volumen * densidad;
 
-      const perfMin = parseFloat(document.getElementById('perforacion').value);
-      const disparo = parseFloat(document.getElementById('disparo').value);
-      const vent = parseFloat(document.getElementById('ventilacion').value);
-      const extMin = parseFloat(document.getElementById('extraccion').value);
-      const proy = parseFloat(document.getElementById('proyeccion').value);
-      const acun = parseFloat(document.getElementById('acunadura').value);
+      const fila = document.getElementById('tablaResultados').insertRow(-1);
+      fila.innerHTML = `<td>${frente}</td><td>${equipo}</td><td>${brazos}</td><td>${perforaciones}</td>
+                        <td>${tiempoRealPerforacion.toFixed(1)}</td><td>${volumen.toFixed(1)}</td><td>${toneladas.toFixed(1)}</td>
+                        <td>${totalMin.toFixed(1)}</td><td>${totalHr}</td>`;
 
-      const perfTotal = perfMin * largo;
-      const extTotal = extMin * largo;
-      const totalMin = perfTotal + disparo + vent + extTotal + proy + acun;
-      const totalHr = (totalMin / 60).toFixed(2);
-
-      frentes.push({ frente, largo, seccion, densidad, volumen, toneladas, perfTotal, disparo, vent, extTotal, proy, acun, totalMin, totalHr });
-
-      const tabla = document.getElementById('tablaResultados');
-      const fila = tabla.insertRow(-1);
-      fila.innerHTML = `<td>${frente}</td><td>${largo}</td><td>${seccion}</td><td>${densidad}</td>
-                        <td>${volumen.toFixed(1)}</td><td>${toneladas.toFixed(1)}</td>
-                        <td>${totalMin}</td><td>${totalHr}</td>`;
-
-      document.getElementById('formFrente').reset();
+      frentes.push({ frente, tiempoRealPerforacion, disparo, ventilacion, extTotal, proyeccion, acunadura });
     });
 
     function mostrarGantt() {
       const contenedor = document.getElementById('contenedorGantt');
       contenedor.innerHTML = "";
       contenedor.style.display = 'block';
-
       frentes.forEach(f => {
         const fila = document.createElement('div');
-        fila.className = 'filaGantt';
         fila.innerHTML = `<strong>${f.frente}</strong><br>` +
-          crearBarra("perforacion", f.perfTotal) +
+          crearBarra("perforacion", f.tiempoRealPerforacion) +
           crearBarra("disparo", f.disparo) +
-          crearBarra("ventilacion", f.vent) +
+          crearBarra("ventilacion", f.ventilacion) +
           crearBarra("extraccion", f.extTotal) +
-          crearBarra("proyeccion", f.proy) +
-          crearBarra("acunadura", f.acun);
+          crearBarra("proyeccion", f.proyeccion) +
+          crearBarra("acunadura", f.acunadura);
         contenedor.appendChild(fila);
       });
     }
@@ -139,8 +142,7 @@
     }
 
     function exportarGantt() {
-      const contenedor = document.getElementById("contenedorGantt");
-      html2canvas(contenedor).then(canvas => {
+      html2canvas(document.getElementById("contenedorGantt")).then(canvas => {
         const link = document.createElement("a");
         link.download = "gantt_" + new Date().toISOString().slice(0,10) + ".png";
         link.href = canvas.toDataURL();
