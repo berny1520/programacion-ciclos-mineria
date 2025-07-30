@@ -1,154 +1,168 @@
-
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <title>Software Minero - Perforación Real por Equipo</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <meta charset="UTF-8">
+  <title>Software Minero - Asefortmec SPA</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    body { font-family: Arial, sans-serif; background-color: #f4f6f8; color: #333; padding: 20px; }
-    h1, h2 { color: #004080; }
-    form, .contenedorGantt { background: #ffffff; padding: 20px; border-radius: 10px; margin-top: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-    label { display: block; margin: 10px 0 5px; }
-    input, select { padding: 5px; width: 220px; }
-    button { margin-top: 10px; padding: 8px 16px; background-color: #004080; color: white; border: none; border-radius: 5px; cursor: pointer; }
-    table { width: 100%; margin-top: 20px; border-collapse: collapse; background: #fff; }
-    th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
-    th { background-color: #e6f0ff; }
-    .barra { height: 20px; margin-right: 2px; display: inline-block; vertical-align: middle; position: relative; }
-    .barra span { position: absolute; left: 5px; top: 2px; font-size: 10px; color: white; }
-    .perforacion { background: #0074D9; }
-    .disparo { background: #FF4136; }
-    .ventilacion { background: #AAAAAA; }
-    .extraccion { background: #2ECC40; }
-    .proyeccion { background: #FF851B; }
-    .acunadura { background: #B10DC9; }
+    body { font-family: Arial; margin: 20px; background: #f0f2f5; }
+    h2, h3 { color: #003366; }
+    input, select { margin: 5px; padding: 5px; width: 100%; }
+    .seccion { background: white; border-radius: 10px; padding: 20px; margin-bottom: 20px; box-shadow: 0 0 10px #ccc; }
+    .btn { padding: 10px; margin: 5px; border: none; border-radius: 5px; background: #0066cc; color: white; cursor: pointer; }
+    .btn-red { background-color: #cc3300; }
+    table, th, td { border: 1px solid #ccc; border-collapse: collapse; padding: 8px; text-align: center; }
+    th { background-color: #003366; color: white; }
+    canvas { background: white; border-radius: 10px; padding: 20px; }
   </style>
 </head>
 <body>
-  <h1>Programación de Perforación con Equipos</h1>
+  <h2>Software de Programación Minera - Asefortmec SPA</h2>
 
-  <form id="formFrente">
-    <label>Nombre del Frente: <input type="text" id="frente" required></label>
-    <label>Largo del frente (m): <input type="number" step="0.1" id="largo" required></label>
+  <div class="seccion">
+    <h3>Ingreso de Frente</h3>
+    <label>Nombre del Frente: <input id="nombreFrente"></label>
     <label>Sección del Frente:
-      <select id="seccion">
-        <option value="5.5x5.2">5.5 x 5.2</option>
-        <option value="4.5x4.5">4.5 x 4.5</option>
-        <option value="6.0x6.0">6.0 x 6.0</option>
-        <option value="7.0x7.0">7.0 x 7.0</option>
-      </select>
+      <select id="seccionFrente">
+        <option>5.5 x 5.2</option><option>4.5 x 4.5</option><option>6.0 x 6.0</option><option>7.0 x 7.0</option>
+      </select></label>
+    <label>Largo (m): <input id="largoFrente" type="number" step="0.1"></label>
+    <label>Densidad (ton/m³): 
+      <select id="densidad"><option value="1.6">1.6</option><option value="1.8">1.8</option><option value="2.0">2.0</option><option value="2.2">2.2</option></select>
     </label>
-    <label>Densidad del material (ton/m³):
-      <select id="densidad">
-        <option value="1.6">1.6</option>
-        <option value="1.8">1.8</option>
-        <option value="2.0">2.0</option>
-        <option value="2.2">2.2</option>
-      </select>
-    </label>
-
     <label>Equipo:
       <select id="equipo">
-        <option value="S1D">S1D</option>
-        <option value="282">282</option>
-        <option value="M2C">M2C</option>
-        <option value="E2C">E2C</option>
-        <option value="XE3C">XE3C</option>
-        <option value="S2">S2</option>
-      </select>
-    </label>
+        <option value="S1D">S1D</option><option value="282">282</option><option value="M2C">M2C</option>
+        <option value="E2C">E2C</option><option value="XE3C">XE3C</option><option value="S2">S2</option>
+      </select></label>
+    <label>Perforaciones: <input id="perforaciones" type="number"></label>
+    <label>Tiempo por Perforación (min): <input id="tiempoPerf" type="number"></label>
+    <label>Disparo (min): <input id="disparo" type="number"></label>
+    <label>Ventilación (min): <input id="ventilacion" type="number"></label>
+    <label>Extracción (min): <input id="extraccion" type="number"></label>
+    <label>Proyección (min): <input id="proyeccion" type="number"></label>
+    <label>Acuñadura (min): <input id="acunadura" type="number"></label>
+    <button class="btn" onclick="agregarFrente()">Agregar Frente</button>
+    <button class="btn" onclick="exportarCSV()">📤 Exportar a CSV</button>
+  </div>
 
-    <label>Cantidad de perforaciones: <input type="number" id="perforaciones" required></label>
-    <label>Tiempo por perforación (minutos, puede ser decimal): <input type="number" step="0.1" id="tiempoPorPerforacion" required></label>
+  <div class="seccion">
+    <h3>Resumen de Frentes</h3>
+    <table id="tablaFrentes">
+      <thead>
+        <tr><th>Frente</th><th>Equipo</th><th>Perfs</th><th>Ton</th><th>Min</th><th>Hr</th><th>Editar</th><th>Eliminar</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
 
-    <label>Disparo (min): <input type="number" id="disparo" required></label>
-    <label>Ventilación (min): <input type="number" id="ventilacion" required></label>
-    <label>Extracción (min/m): <input type="number" step="0.1" id="extraccion" required></label>
-    <label>Proyección (min): <input type="number" id="proyeccion" required></label>
-    <label>Acuñadura (min): <input type="number" id="acunadura" required></label>
-    <button type="submit">Agregar Frente</button>
-  </form>
+  <div class="seccion">
+    <h3>Resumen por Equipo</h3>
+    <table id="tablaResumen">
+      <thead><tr><th>Equipo</th><th>Frentes</th><th>Toneladas</th><th>Minutos</th></tr></thead>
+      <tbody></tbody>
+    </table>
+    <canvas id="graficoToneladas" height="150"></canvas>
+    <canvas id="graficoTiempo" height="150"></canvas>
+  </div>
 
-  <h2>Resumen de Frentes</h2>
-  <table id="tablaResultados">
-    <tr>
-      <th>Frente</th><th>Equipo</th><th>Brazos</th><th>Perfs</th><th>Tiempo Real Perforación (min)</th>
-      <th>Volumen (m³)</th><th>Toneladas</th><th>Total (min)</th><th>Total (hr)</th>
-    </tr>
-  </table>
+<script>
+const brazosEquipo = {{ S1D: 1, "282": 1, M2C: 2, E2C: 2, XE3C: 3, S2: 2 }};
+let frentes = [];
 
-  <button onclick="mostrarGantt()">Ver gráfico Gantt</button>
-  <button onclick="exportarGantt()">Descargar Gantt como Imagen</button>
-  <div class="contenedorGantt" id="contenedorGantt" style="display:none;"></div>
+function agregarFrente() {
+  const nombre = v("nombreFrente"), seccion = v("seccionFrente"), largo = +v("largoFrente"), densidad = +v("densidad");
+  const equipo = v("equipo"), perfs = +v("perforaciones"), tperf = +v("tiempoPerf"), disparo = +v("disparo");
+  const vent = +v("ventilacion"), extr = +v("extraccion"), proy = +v("proyeccion"), acu = +v("acunadura");
 
-  <script>
-    const equipos = { "S1D": 1, "282": 1, "M2C": 2, "E2C": 2, "XE3C": 3, "S2": 2 };
-    const frentes = [];
+  const [ancho, alto] = seccion.split("x").map(Number);
+  const volumen = ancho * alto * largo;
+  const ton = volumen * densidad;
+  const brazos = brazosEquipo[equipo];
+  const tPerforar = (perfs * tperf) / brazos;
+  const totalMin = tPerforar + disparo + vent + extr + proy + acu;
+  const totalHr = (totalMin / 60).toFixed(2);
 
-    document.getElementById('formFrente').addEventListener('submit', function(e) {
-      e.preventDefault();
-      const frente = document.getElementById('frente').value;
-      const largo = parseFloat(document.getElementById('largo').value);
-      const seccion = document.getElementById('seccion').value;
-      const densidad = parseFloat(document.getElementById('densidad').value);
-      const equipo = document.getElementById('equipo').value;
-      const brazos = equipos[equipo];
-      const perforaciones = parseInt(document.getElementById('perforaciones').value);
-      const tiempoPorPerf = parseFloat(document.getElementById('tiempoPorPerforacion').value);
-      const disparo = parseFloat(document.getElementById('disparo').value);
-      const ventilacion = parseFloat(document.getElementById('ventilacion').value);
-      const extraccion = parseFloat(document.getElementById('extraccion').value);
-      const proyeccion = parseFloat(document.getElementById('proyeccion').value);
-      const acunadura = parseFloat(document.getElementById('acunadura').value);
+  frentes.push({ nombre, equipo, perfs, toneladas: ton.toFixed(1), tiempo: Math.round(totalMin), horas: totalHr });
+  guardar();
+  render();
+}
 
-      const tiempoRealPerforacion = (perforaciones * tiempoPorPerf) / brazos;
-      const extTotal = extraccion * largo;
-      const totalMin = tiempoRealPerforacion + disparo + ventilacion + extTotal + proyeccion + acunadura;
-      const totalHr = (totalMin / 60).toFixed(2);
+function render() {
+  const tb = document.querySelector("#tablaFrentes tbody");
+  tb.innerHTML = "";
+  frentes.forEach((f, i) => {
+    tb.innerHTML += `<tr><td>${f.nombre}</td><td>${f.equipo}</td><td>${f.perfs}</td><td>${f.toneladas}</td><td>${f.tiempo}</td><td>${f.horas}</td>
+    <td><button class='btn' onclick='editar(${i})'>✏️</button></td>
+    <td><button class='btn btn-red' onclick='eliminar(${i})'>🗑️</button></td></tr>`;
+  });
+  resumenEquipo();
+}
 
-      const [ancho, alto] = seccion.split("x").map(Number);
-      const volumen = largo * ancho * alto;
-      const toneladas = volumen * densidad;
+function exportarCSV() {
+  let csv = "Frente,Equipo,Perfs,Toneladas,Min,Hor\n";
+  frentes.forEach(f => csv += `${f.nombre},${f.equipo},${f.perfs},${f.toneladas},${f.tiempo},${f.horas}\n`);
+  const blob = new Blob([csv], { type: "text/csv" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "frentes_Asefortmec.csv";
+  a.click();
+}
 
-      const fila = document.getElementById('tablaResultados').insertRow(-1);
-      fila.innerHTML = `<td>${frente}</td><td>${equipo}</td><td>${brazos}</td><td>${perforaciones}</td>
-                        <td>${tiempoRealPerforacion.toFixed(1)}</td><td>${volumen.toFixed(1)}</td><td>${toneladas.toFixed(1)}</td>
-                        <td>${totalMin.toFixed(1)}</td><td>${totalHr}</td>`;
+function editar(i) {
+  const f = frentes[i];
+  const nuevo = prompt("Editar (nombre,equipo,perfs,ton,tiempo):", `${f.nombre},${f.equipo},${f.perfs},${f.toneladas},${f.tiempo}`);
+  if (nuevo) {
+    const [n, e, p, t, m] = nuevo.split(",");
+    frentes[i] = { nombre: n, equipo: e, perfs: +p, toneladas: t, tiempo: +m, horas: (+m/60).toFixed(2) };
+    guardar();
+    render();
+  }
+}
 
-      frentes.push({ frente, tiempoRealPerforacion, disparo, ventilacion, extTotal, proyeccion, acunadura });
-    });
+function eliminar(i) {
+  if (confirm("¿Eliminar?")) { frentes.splice(i, 1); guardar(); render(); }
+}
 
-    function mostrarGantt() {
-      const contenedor = document.getElementById('contenedorGantt');
-      contenedor.innerHTML = "";
-      contenedor.style.display = 'block';
-      frentes.forEach(f => {
-        const fila = document.createElement('div');
-        fila.innerHTML = `<strong>${f.frente}</strong><br>` +
-          crearBarra("perforacion", f.tiempoRealPerforacion) +
-          crearBarra("disparo", f.disparo) +
-          crearBarra("ventilacion", f.ventilacion) +
-          crearBarra("extraccion", f.extTotal) +
-          crearBarra("proyeccion", f.proyeccion) +
-          crearBarra("acunadura", f.acunadura);
-        contenedor.appendChild(fila);
-      });
-    }
+function resumenEquipo() {
+  const resumen = {};
+  frentes.forEach(f => {
+    if (!resumen[f.equipo]) resumen[f.equipo] = { frentes: 0, toneladas: 0, tiempo: 0 };
+    resumen[f.equipo].frentes += 1;
+    resumen[f.equipo].toneladas += +f.toneladas;
+    resumen[f.equipo].tiempo += f.tiempo;
+  });
+  const tr = document.querySelector("#tablaResumen tbody");
+  tr.innerHTML = "";
+  const etiquetas = [], dataTon = [], dataMin = [];
+  for (const e in resumen) {
+    const r = resumen[e];
+    tr.innerHTML += `<tr><td>${e}</td><td>${r.frentes}</td><td>${r.toneladas.toFixed(1)}</td><td>${r.tiempo}</td></tr>`;
+    etiquetas.push(e); dataTon.push(r.toneladas); dataMin.push(r.tiempo);
+  }
+  graficar("graficoToneladas", "Toneladas por Equipo", etiquetas, dataTon, "#3399ff");
+  graficar("graficoTiempo", "Minutos por Equipo", etiquetas, dataMin, "#cc6600");
+}
 
-    function crearBarra(tipo, valor) {
-      const horas = (valor / 60).toFixed(1);
-      return `<span class='barra ${tipo}' style='width:${valor}px'><span>${horas}h</span></span>`;
-    }
+function graficar(id, label, labels, data, color) {
+  new Chart(document.getElementById(id), {
+    type: "bar",
+    data: { labels: labels, datasets: [{ label: label, data: data, backgroundColor: color }] },
+    options: { responsive: true, plugins: { legend: { display: false } } }
+  });
+}
 
-    function exportarGantt() {
-      html2canvas(document.getElementById("contenedorGantt")).then(canvas => {
-        const link = document.createElement("a");
-        link.download = "gantt_" + new Date().toISOString().slice(0,10) + ".png";
-        link.href = canvas.toDataURL();
-        link.click();
-      });
-    }
-  </script>
+function guardar() {
+  localStorage.setItem("frentesAsefortmec", JSON.stringify(frentes));
+}
+
+function v(id) { return document.getElementById(id).value; }
+
+window.onload = () => {
+  const guardados = localStorage.getItem("frentesAsefortmec");
+  if (guardados) frentes = JSON.parse(guardados);
+  render();
+}
+</script>
 </body>
 </html>
