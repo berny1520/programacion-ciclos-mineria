@@ -1,168 +1,140 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <title>Software Minero - Asefortmec SPA</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Software Minero - Avanzado</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
-    body { font-family: Arial; margin: 20px; background: #f0f2f5; }
-    h2, h3 { color: #003366; }
-    input, select { margin: 5px; padding: 5px; width: 100%; }
-    .seccion { background: white; border-radius: 10px; padding: 20px; margin-bottom: 20px; box-shadow: 0 0 10px #ccc; }
-    .btn { padding: 10px; margin: 5px; border: none; border-radius: 5px; background: #0066cc; color: white; cursor: pointer; }
-    .btn-red { background-color: #cc3300; }
-    table, th, td { border: 1px solid #ccc; border-collapse: collapse; padding: 8px; text-align: center; }
-    th { background-color: #003366; color: white; }
-    canvas { background: white; border-radius: 10px; padding: 20px; }
+    body { font-family: Arial, sans-serif; margin: 20px; background-color: #f7f7f7; }
+    input, select { padding: 5px; margin: 4px; }
+    .btn { padding: 5px 10px; margin: 5px; cursor: pointer; }
+    table, th, td { border: 1px solid gray; border-collapse: collapse; padding: 5px; }
+    #charts { margin-top: 30px; }
   </style>
 </head>
 <body>
-  <h2>Software de Programación Minera - Asefortmec SPA</h2>
 
-  <div class="seccion">
-    <h3>Ingreso de Frente</h3>
-    <label>Nombre del Frente: <input id="nombreFrente"></label>
-    <label>Sección del Frente:
-      <select id="seccionFrente">
-        <option>5.5 x 5.2</option><option>4.5 x 4.5</option><option>6.0 x 6.0</option><option>7.0 x 7.0</option>
-      </select></label>
-    <label>Largo (m): <input id="largoFrente" type="number" step="0.1"></label>
-    <label>Densidad (ton/m³): 
-      <select id="densidad"><option value="1.6">1.6</option><option value="1.8">1.8</option><option value="2.0">2.0</option><option value="2.2">2.2</option></select>
-    </label>
-    <label>Equipo:
-      <select id="equipo">
-        <option value="S1D">S1D</option><option value="282">282</option><option value="M2C">M2C</option>
-        <option value="E2C">E2C</option><option value="XE3C">XE3C</option><option value="S2">S2</option>
-      </select></label>
-    <label>Perforaciones: <input id="perforaciones" type="number"></label>
-    <label>Tiempo por Perforación (min): <input id="tiempoPerf" type="number"></label>
-    <label>Disparo (min): <input id="disparo" type="number"></label>
-    <label>Ventilación (min): <input id="ventilacion" type="number"></label>
-    <label>Extracción (min): <input id="extraccion" type="number"></label>
-    <label>Proyección (min): <input id="proyeccion" type="number"></label>
-    <label>Acuñadura (min): <input id="acunadura" type="number"></label>
-    <button class="btn" onclick="agregarFrente()">Agregar Frente</button>
-    <button class="btn" onclick="exportarCSV()">📤 Exportar a CSV</button>
-  </div>
+<h2>Software de Programación Minera - Asefortmec SPA</h2>
 
-  <div class="seccion">
-    <h3>Resumen de Frentes</h3>
-    <table id="tablaFrentes">
-      <thead>
-        <tr><th>Frente</th><th>Equipo</th><th>Perfs</th><th>Ton</th><th>Min</th><th>Hr</th><th>Editar</th><th>Eliminar</th></tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-  </div>
+<div>
+  <label>Nombre del Frente: <input id="frente" type="text"/></label>
+  <label>Sección del Frente: 
+    <select id="seccion">
+      <option>5.5 x 5.2</option>
+      <option>4.5 x 4.5</option>
+      <option>6.0 x 6.0</option>
+      <option>7.0 x 7.0</option>
+    </select>
+  </label>
+  <label>Largo (m): <input id="largo" type="number"/></label>
+  <label>Densidad (ton/m³): 
+    <select id="densidad">
+      <option>1.6</option>
+      <option>1.8</option>
+      <option>2.0</option>
+      <option>2.2</option>
+    </select>
+  </label>
+  <label>Equipo:
+    <select id="equipo">
+      <option>S1D</option>
+      <option>282</option>
+      <option>M2C</option>
+      <option>E2C</option>
+      <option>XE3C</option>
+      <option>S2</option>
+    </select>
+  </label>
+  <label>Perforaciones: <input id="perfs" type="number"/></label>
+  <label>Tiempo por Perforación (min): <input id="tperf" type="number" step="0.1"/></label>
+  <label>Disparo (min): <input id="disparo" type="number"/></label>
+  <label>Ventilación (min): <input id="ventilacion" type="number"/></label>
+  <label>Extracción (min): <input id="extraccion" type="number"/></label>
+  <label>Proyección (min): <input id="proyeccion" type="number"/></label>
+  <label>Acuñadura (min): <input id="acunadura" type="number"/></label>
+  <button class="btn" onclick="agregarFrente()">Agregar Frente</button>
+  <button class="btn" onclick="generarPDF()">Exportar a PDF</button>
+</div>
 
-  <div class="seccion">
-    <h3>Resumen por Equipo</h3>
-    <table id="tablaResumen">
-      <thead><tr><th>Equipo</th><th>Frentes</th><th>Toneladas</th><th>Minutos</th></tr></thead>
-      <tbody></tbody>
-    </table>
-    <canvas id="graficoToneladas" height="150"></canvas>
-    <canvas id="graficoTiempo" height="150"></canvas>
-  </div>
+<h3>Resumen de Frentes</h3>
+<table id="resumen">
+  <tr><th>Frente</th><th>Equipo</th><th>Brazos</th><th>Perfs</th><th>Toneladas</th><th>Tiempo (min)</th></tr>
+</table>
+
+<div id="charts">
+  <h3>Gráfico por Equipos</h3>
+  <canvas id="barChart" width="600" height="300"></canvas>
+
+  <h3>Gráfico Gantt</h3>
+  <canvas id="ganttChart" width="600" height="200"></canvas>
+</div>
 
 <script>
-const brazosEquipo = {{ S1D: 1, "282": 1, M2C: 2, E2C: 2, XE3C: 3, S2: 2 }};
 let frentes = [];
+const brazosPorEquipo = { 'S1D': 1, '282': 1, 'M2C': 2, 'E2C': 2, 'XE3C': 3, 'S2': 2 };
 
 function agregarFrente() {
-  const nombre = v("nombreFrente"), seccion = v("seccionFrente"), largo = +v("largoFrente"), densidad = +v("densidad");
-  const equipo = v("equipo"), perfs = +v("perforaciones"), tperf = +v("tiempoPerf"), disparo = +v("disparo");
-  const vent = +v("ventilacion"), extr = +v("extraccion"), proy = +v("proyeccion"), acu = +v("acunadura");
+  const nombre = document.getElementById("frente").value;
+  const seccion = document.getElementById("seccion").value;
+  const largo = parseFloat(document.getElementById("largo").value);
+  const densidad = parseFloat(document.getElementById("densidad").value);
+  const equipo = document.getElementById("equipo").value;
+  const perfs = parseInt(document.getElementById("perfs").value);
+  const tperf = parseFloat(document.getElementById("tperf").value);
+  const disparo = parseFloat(document.getElementById("disparo").value);
+  const ventilacion = parseFloat(document.getElementById("ventilacion").value);
+  const extraccion = parseFloat(document.getElementById("extraccion").value);
+  const proyeccion = parseFloat(document.getElementById("proyeccion").value);
+  const acunadura = parseFloat(document.getElementById("acunadura").value);
 
-  const [ancho, alto] = seccion.split("x").map(Number);
-  const volumen = ancho * alto * largo;
-  const ton = volumen * densidad;
-  const brazos = brazosEquipo[equipo];
-  const tPerforar = (perfs * tperf) / brazos;
-  const totalMin = tPerforar + disparo + vent + extr + proy + acu;
-  const totalHr = (totalMin / 60).toFixed(2);
+  const area = parseFloat(seccion.split("x")[0]) * parseFloat(seccion.split("x")[1]);
+  const volumen = area * largo;
+  const toneladas = volumen * densidad;
+  const tiempoPerforacion = (perfs * tperf) / brazosPorEquipo[equipo];
+  const tiempoTotal = tiempoPerforacion + disparo + ventilacion + extraccion + proyeccion + acunadura;
 
-  frentes.push({ nombre, equipo, perfs, toneladas: ton.toFixed(1), tiempo: Math.round(totalMin), horas: totalHr });
-  guardar();
-  render();
+  const frente = { nombre, equipo, brazos: brazosPorEquipo[equipo], perfs, toneladas, tiempoTotal };
+  frentes.push(frente);
+
+  const tabla = document.getElementById("resumen");
+  const fila = tabla.insertRow();
+  fila.innerHTML = `<td>${nombre}</td><td>${equipo}</td><td>${frente.brazos}</td><td>${perfs}</td><td>${toneladas.toFixed(1)}</td><td>${tiempoTotal.toFixed(1)}</td>`;
+
+  actualizarGraficos();
 }
 
-function render() {
-  const tb = document.querySelector("#tablaFrentes tbody");
-  tb.innerHTML = "";
+function actualizarGraficos() {
+  const ctx1 = document.getElementById('barChart').getContext('2d');
+  const equipos = {};
+  frentes.forEach(f => equipos[f.equipo] = (equipos[f.equipo] || 0) + f.toneladas);
+  const barData = { labels: Object.keys(equipos), datasets: [{ label: 'Toneladas por Equipo', data: Object.values(equipos), backgroundColor: 'steelblue' }] };
+  new Chart(ctx1, { type: 'bar', data: barData });
+
+  const ctx2 = document.getElementById('ganttChart').getContext('2d');
+  const ganttData = {
+    labels: frentes.map(f => f.nombre),
+    datasets: [{
+      label: 'Duración total (min)',
+      data: frentes.map(f => f.tiempoTotal),
+      backgroundColor: 'orange'
+    }]
+  };
+  new Chart(ctx2, { type: 'bar', data: ganttData, options: { indexAxis: 'y' } });
+}
+
+function generarPDF() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  doc.text("Resumen de Frentes", 10, 10);
   frentes.forEach((f, i) => {
-    tb.innerHTML += `<tr><td>${f.nombre}</td><td>${f.equipo}</td><td>${f.perfs}</td><td>${f.toneladas}</td><td>${f.tiempo}</td><td>${f.horas}</td>
-    <td><button class='btn' onclick='editar(${i})'>✏️</button></td>
-    <td><button class='btn btn-red' onclick='eliminar(${i})'>🗑️</button></td></tr>`;
+    doc.text(`${i+1}. ${f.nombre} - Equipo: ${f.equipo} - Tn: ${f.toneladas.toFixed(1)} - Tiempo: ${f.tiempoTotal.toFixed(1)} min`, 10, 20 + (i*10));
   });
-  resumenEquipo();
-}
-
-function exportarCSV() {
-  let csv = "Frente,Equipo,Perfs,Toneladas,Min,Hor\n";
-  frentes.forEach(f => csv += `${f.nombre},${f.equipo},${f.perfs},${f.toneladas},${f.tiempo},${f.horas}\n`);
-  const blob = new Blob([csv], { type: "text/csv" });
-  const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
-  a.download = "frentes_Asefortmec.csv";
-  a.click();
-}
-
-function editar(i) {
-  const f = frentes[i];
-  const nuevo = prompt("Editar (nombre,equipo,perfs,ton,tiempo):", `${f.nombre},${f.equipo},${f.perfs},${f.toneladas},${f.tiempo}`);
-  if (nuevo) {
-    const [n, e, p, t, m] = nuevo.split(",");
-    frentes[i] = { nombre: n, equipo: e, perfs: +p, toneladas: t, tiempo: +m, horas: (+m/60).toFixed(2) };
-    guardar();
-    render();
-  }
-}
-
-function eliminar(i) {
-  if (confirm("¿Eliminar?")) { frentes.splice(i, 1); guardar(); render(); }
-}
-
-function resumenEquipo() {
-  const resumen = {};
-  frentes.forEach(f => {
-    if (!resumen[f.equipo]) resumen[f.equipo] = { frentes: 0, toneladas: 0, tiempo: 0 };
-    resumen[f.equipo].frentes += 1;
-    resumen[f.equipo].toneladas += +f.toneladas;
-    resumen[f.equipo].tiempo += f.tiempo;
-  });
-  const tr = document.querySelector("#tablaResumen tbody");
-  tr.innerHTML = "";
-  const etiquetas = [], dataTon = [], dataMin = [];
-  for (const e in resumen) {
-    const r = resumen[e];
-    tr.innerHTML += `<tr><td>${e}</td><td>${r.frentes}</td><td>${r.toneladas.toFixed(1)}</td><td>${r.tiempo}</td></tr>`;
-    etiquetas.push(e); dataTon.push(r.toneladas); dataMin.push(r.tiempo);
-  }
-  graficar("graficoToneladas", "Toneladas por Equipo", etiquetas, dataTon, "#3399ff");
-  graficar("graficoTiempo", "Minutos por Equipo", etiquetas, dataMin, "#cc6600");
-}
-
-function graficar(id, label, labels, data, color) {
-  new Chart(document.getElementById(id), {
-    type: "bar",
-    data: { labels: labels, datasets: [{ label: label, data: data, backgroundColor: color }] },
-    options: { responsive: true, plugins: { legend: { display: false } } }
-  });
-}
-
-function guardar() {
-  localStorage.setItem("frentesAsefortmec", JSON.stringify(frentes));
-}
-
-function v(id) { return document.getElementById(id).value; }
-
-window.onload = () => {
-  const guardados = localStorage.getItem("frentesAsefortmec");
-  if (guardados) frentes = JSON.parse(guardados);
-  render();
+  doc.save("reporte_minero.pdf");
 }
 </script>
+
 </body>
 </html>
